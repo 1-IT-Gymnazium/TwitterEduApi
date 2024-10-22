@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using TwitterEdu.Api.Utils;
 using TwitterEdu.Data;
 
 namespace TwitterEdu.Api;
@@ -20,6 +21,7 @@ public class Program
         });
         // Add services to the container.
         builder.Services.AddSingleton<IClock>(SystemClock.Instance);
+        builder.Services.AddScoped<IApplicationMapper, ApplicationMapper>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
