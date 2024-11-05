@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TwitterEdu.Api.Utils;
 using TwitterEdu.Data.Entities;
 
@@ -15,10 +16,10 @@ public static class DetailPostModelExtensions
 {
     public static DetailPostModel ToDetail(this IApplicationMapper mapper, Post source)
         => new()
-        {
-            Id = source.Id,
-            Content = source.Content,
-            CreatedAt = source.CreatedAt.ToString(),
-            ModifiedAt = source.ModifiedAt.ToString(),
-        };
+    {
+        Id = source.Id,
+        Content = source.Content,
+        CreatedAt = source.CreatedAt.ToString(),
+        ModifiedAt = source.ModifiedAt.ToString(),
+    };
 }

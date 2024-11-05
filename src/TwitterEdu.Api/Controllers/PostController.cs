@@ -18,7 +18,7 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
     private IApplicationMapper _mapper = mapper;
 
     [HttpPost("api/Post")]
-    public async Task<IActionResult> Create([FromBody] CreatePostModel model)
+    public async Task<ActionResult<DetailPostModel>> Create([FromBody] CreatePostModel model)
     {
         var newEntity = new Post
         {
@@ -29,11 +29,14 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
         _dbContext.Add(newEntity);
         await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        newEntity = await _dbContext.Posts.FirstAsync(x => x.Id == newEntity.Id);
+
+        var url = Url.Action(nameof(Get), new { newEntity.Id }) ?? throw new Exception();
+        return Created(url, _mapper.ToDetail(newEntity));
     }
 
     [HttpPut("api/Post/{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] CreatePostModel model)
+    public async Task<ActionResult<DetailPostModel>> Update([FromRoute] Guid id, [FromBody] CreatePostModel model)
     {
         var dbEntity = await _dbContext.Posts.FirstOrDefaultAsync(x => x.Id == id);
         if (dbEntity == null)
@@ -46,7 +49,9 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
 
         await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        dbEntity = await _dbContext.Posts.FirstAsync(x => x.Id == dbEntity.Id);
+
+        return Ok(_mapper.ToDetail(dbEntity));
     }
 
     [HttpGet("api/Post/{id:guid}")]
@@ -82,6 +87,7 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
 
         _dbContext.Remove(dbEntity);
         await _dbContext.SaveChangesAsync();
+
         return NoContent();
     }
 }
