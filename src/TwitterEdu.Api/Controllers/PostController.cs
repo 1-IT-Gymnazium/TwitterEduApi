@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
-using NodaTime.Text;
 using TwitterEdu.Api.Models.Posts;
 using TwitterEdu.Api.Utils;
 using TwitterEdu.Data;
@@ -18,6 +17,7 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
     private IClock _clock = clock;
     private IApplicationMapper _mapper = mapper;
 
+    [Authorize]
     [HttpPost("api/Post")]
     public async Task<ActionResult<DetailPostModel>> Create([FromBody] CreatePostModel model)
     {
@@ -25,18 +25,23 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
         var newEntity = new Post
         {
             Content = model.Content,
+            AuthorId = User.GetUserId(), 
         }.SetCreateBySystem(now);
 
         _dbContext.Add(newEntity);
         await _dbContext.SaveChangesAsync();
 
-        newEntity = await _dbContext.Posts.FirstAsync(x => x.Id == newEntity.Id);
+        newEntity = await _dbContext
+            .Posts
+            .Include(x => x.Author)
+            .FirstAsync(x => x.Id == newEntity.Id);
 
         var url = Url.Action(nameof(Get), new { newEntity.Id })
             ?? throw new Exception();
         return Created(url, _mapper.ToDetail(newEntity));
     }
 
+    [Authorize]
     [HttpPut("api/Post/{id:guid}")]
     public async Task<ActionResult<DetailPostModel>> Update([FromRoute] Guid id, [FromBody] CreatePostModel model)
     {
@@ -59,7 +64,11 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
     [HttpGet("api/Post/{id:guid}")]
     public async Task<ActionResult<DetailPostModel>> Get([FromRoute] Guid id)
     {
-        var dbEntity = await _dbContext.Posts.FirstOrDefaultAsync(x => x.Id == id);
+        var dbEntity = await _dbContext
+            .Posts
+            .Include(x => x.Author)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
         if (dbEntity == null)
         {
             return NotFound();
@@ -73,6 +82,7 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
     {
         var models = _dbContext
             .Posts
+            .Include(x => x.Author)
             .Select(_mapper.ToDetail);
 
         return Ok(models);

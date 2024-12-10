@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using TwitterEdu.Data;
 namespace TwitterEdu.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241203151141_UserToPostAdded")]
+    partial class UserToPostAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,7 +45,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("UserClaims");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Identity.AppUser", b =>
@@ -119,7 +122,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Post", b =>
@@ -159,7 +162,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Post", (string)null);
+                    b.ToTable("Post");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Post", b =>
