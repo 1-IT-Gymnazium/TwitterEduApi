@@ -1,6 +1,6 @@
 using NodaTime;
 
-namespace TwitterEdu.Data.Interafaces;
+namespace TwitterEdu.Data.Interfaces;
 public interface ITrackable
 {
     public Instant CreatedAt { get; set; }

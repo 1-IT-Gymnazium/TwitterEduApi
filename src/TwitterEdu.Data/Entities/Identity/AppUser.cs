@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TwitterEdu.Data.Interafaces;
+using TwitterEdu.Data.Interfaces;
 
 namespace TwitterEdu.Data.Entities.Identity;
 public class AppUser : IdentityUser<Guid>, ITrackable

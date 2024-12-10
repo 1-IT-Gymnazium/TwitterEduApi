@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using TwitterEdu.Api.Models.Posts;
 using TwitterEdu.Api.Utils;
 using TwitterEdu.Data;
 using TwitterEdu.Data.Entities;
-using TwitterEdu.Data.Interafaces;
+using TwitterEdu.Data.Interfaces;
 
 namespace TwitterEdu.Api.Controllers;
 
@@ -52,10 +53,12 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
         }
 
         dbEntity.Content = model.Content;
-        dbEntity.SetModifyBySystem(_clock.GetCurrentInstant());
+        dbEntity.SetModifyBy(User.GetName(), _clock.GetCurrentInstant());
 
         await _dbContext.SaveChangesAsync();
 
+        ModelState.AddModelError<DetailPostModel>(x => x.Content, "něco špatně s contentem");
+        return ValidationProblem(ModelState);
         dbEntity = await _dbContext.Posts.FirstAsync(x => x.Id == dbEntity.Id);
 
         return Ok(_mapper.ToDetail(dbEntity));

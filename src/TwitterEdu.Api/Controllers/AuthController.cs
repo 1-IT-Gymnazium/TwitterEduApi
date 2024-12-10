@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using TwitterEdu.Api.Models.Auth;
 using TwitterEdu.Data.Entities.Identity;
-using TwitterEdu.Data.Interafaces;
+using TwitterEdu.Data.Interfaces;
 
 namespace TwitterEdu.Api.Controllers;
 [ApiController]
