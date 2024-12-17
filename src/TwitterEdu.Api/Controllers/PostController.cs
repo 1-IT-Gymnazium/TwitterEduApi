@@ -25,6 +25,7 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
         var now = _clock.GetCurrentInstant();
         var newEntity = new Post
         {
+            Id = Guid.NewGuid(),
             Content = model.Content,
             AuthorId = User.GetUserId(), 
         }.SetCreateBySystem(now);
@@ -57,10 +58,7 @@ public class PostController(IClock clock, IApplicationMapper mapper, AppDbContex
 
         await _dbContext.SaveChangesAsync();
 
-        ModelState.AddModelError<DetailPostModel>(x => x.Content, "něco špatně s contentem");
-        return ValidationProblem(ModelState);
         dbEntity = await _dbContext.Posts.FirstAsync(x => x.Id == dbEntity.Id);
-
         return Ok(_mapper.ToDetail(dbEntity));
     }
 
