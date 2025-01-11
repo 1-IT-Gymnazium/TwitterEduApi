@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using TwitterEdu.Api.BackgroundWorkers;
+using TwitterEdu.Api.Services;
 using TwitterEdu.Api.Utils;
 using TwitterEdu.Data;
 using TwitterEdu.Data.Entities.Identity;
@@ -46,6 +48,9 @@ public class Program
         // Add services to the container.
         builder.Services.AddSingleton<IClock>(SystemClock.Instance);
         builder.Services.AddScoped<IApplicationMapper, ApplicationMapper>();
+        builder.Services.AddScoped<EmailSenderService>();
+
+        builder.Services.AddHostedService<EmailSenderBackgroundService>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
