@@ -5,10 +5,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using NodaTime;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using TwitterEdu.Api.Models.Auth;
+using TwitterEdu.Api.Options;
+using TwitterEdu.Api.Utils;
 using TwitterEdu.Data.Entities.Identity;
 using TwitterEdu.Data.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace TwitterEdu.Api.Controllers;
 [ApiController]
@@ -17,15 +25,18 @@ public class AuthController : ControllerBase
     private readonly IClock _clock;
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
+    private readonly JwtSettings _jwtSettings;
 
     public AuthController(
         IClock clock,
         UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager)
+        SignInManager<AppUser> signInManager,
+        IOptions<JwtSettings> options)
     {
         _clock = clock;
         _signInManager = signInManager;
         _userManager = userManager;
+        _jwtSettings = options.Value;
     }
 
     // We will also add verion of endpoint into post controller
@@ -89,10 +100,8 @@ public class AuthController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-        await HttpContext.SignInAsync(userPrincipal);
-
-        return NoContent();
+        var token = GenerateJwtToken(model.Email, user.Id.ToString().ToLowerInvariant());
+        return Ok(new { Token = token });
     }
 
     /// <summary>
@@ -126,6 +135,38 @@ public class AuthController : ControllerBase
         return NoContent();
     }
 
+    [AllowAnonymous]
+    [HttpGet("api/v1/Account/UserInfo")]
+    public async Task<ActionResult<LoggedUserModel>> GetUserInfo()
+    {
+        if (!User.Identities.Any(x => x.IsAuthenticated))
+        {
+            return new LoggedUserModel
+            {
+                id = default,
+                name = null,
+                isAuthenticated = false,
+                isAdmin = false,
+            };
+        }
+
+        var id = User.GetUserId();
+        var user = await _userManager.Users
+            .Where(x => x.Id == id)
+            .AsNoTracking()
+            .SingleAsync();
+
+        var loggedModel = new LoggedUserModel
+        {
+            id = user.Id,
+            name = user.DisplayName,
+            isAuthenticated = true,
+            isAdmin = false,
+        };
+
+        return loggedModel;
+    }
+
     [Authorize]
     [HttpPost("api/v1/Auth/Logout")]
     public async Task<ActionResult> Logout()
@@ -139,5 +180,20 @@ public class AuthController : ControllerBase
     public ActionResult TestMeBeforeLoginAndAfter()
     {
         return Ok("Succesfully reached endpoint!");
+    }
+
+    private string GenerateJwtToken(string username, string id)
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Name, username), new(ClaimTypes.NameIdentifier, id) };
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken(
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(30),
+            signingCredentials: creds);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
