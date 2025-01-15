@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using TwitterEdu.Api.BackgroundWorkers;
+using TwitterEdu.Api.Options;
 using TwitterEdu.Api.Services;
 using TwitterEdu.Api.Utils;
 using TwitterEdu.Data;
@@ -44,6 +45,8 @@ public class Program
 
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpSettings"));
 
         // Add services to the container.
         builder.Services.AddSingleton<IClock>(SystemClock.Instance);
