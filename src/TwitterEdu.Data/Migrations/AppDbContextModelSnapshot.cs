@@ -42,7 +42,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims");
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Comment", b =>
@@ -88,7 +88,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.EmailMessage", b =>
@@ -129,7 +129,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailMessage");
+                    b.ToTable("EmailMessage", (string)null);
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Identity.AppUser", b =>
@@ -206,7 +206,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Post", b =>
@@ -251,7 +251,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Post");
+                    b.ToTable("Post", (string)null);
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Comment", b =>
