@@ -5,7 +5,7 @@
 namespace TwitterEdu.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class TrackableAddedAgain : Migration
+    public partial class TrackableToPost : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

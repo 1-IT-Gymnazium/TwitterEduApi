@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using TwitterEdu.Data;
 namespace TwitterEdu.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250114152154_TrackableToPost")]
+    partial class TrackableToPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,7 +45,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("UserClaims");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Comment", b =>
@@ -88,48 +91,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comment", (string)null);
-                });
-
-            modelBuilder.Entity("TwitterEdu.Data.Entities.EmailMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Instant>("CreatedBy")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("FromEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FromName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("RecipientEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("RecipientName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Sent")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmailMessage", (string)null);
+                    b.ToTable("Comment");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Identity.AppUser", b =>
@@ -206,7 +168,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Post", b =>
@@ -251,7 +213,7 @@ namespace TwitterEdu.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Post", (string)null);
+                    b.ToTable("Post");
                 });
 
             modelBuilder.Entity("TwitterEdu.Data.Entities.Comment", b =>
