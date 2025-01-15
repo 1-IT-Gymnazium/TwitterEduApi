@@ -17,6 +17,8 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 
     public DbSet<Comment> Comments { get; set; }
 
+    public DbSet<EmailMessage> Emails { get; set; }
+
     public AppDbContext(DbContextOptions options) : base(options)
     {
     }

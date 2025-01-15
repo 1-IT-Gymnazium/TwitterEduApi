@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NodaTime;
+using TwitterEdu.Api.BackgroundWorkers;
+using TwitterEdu.Api.Services;
 using System.Text;
 using TwitterEdu.Api.Options;
 using TwitterEdu.Api.Utils;
@@ -66,9 +68,14 @@ public class Program
             };
         });
 
+        builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpSettings"));
+
         // Add services to the container.
         builder.Services.AddSingleton<IClock>(SystemClock.Instance);
         builder.Services.AddScoped<IApplicationMapper, ApplicationMapper>();
+        builder.Services.AddScoped<EmailSenderService>();
+
+        builder.Services.AddHostedService<EmailSenderBackgroundService>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
