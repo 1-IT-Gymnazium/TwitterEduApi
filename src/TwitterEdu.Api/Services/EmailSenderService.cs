@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using NodaTime;
 using System.Net.Mail;
 using TwitterEdu.Api.Options;
 using TwitterEdu.Data;
+using TwitterEdu.Data.Entities;
+using TwitterEdu.Data.Interfaces;
 
 namespace TwitterEdu.Api.Services;
 
@@ -11,12 +14,35 @@ public class EmailSenderService
 {
     private readonly AppDbContext _dbContext;
     private readonly SmtpOptions _smtpOptions;
+    private readonly EnvironmentOptions _envOptions;
+    private readonly IClock _clock;
 
-    public EmailSenderService(AppDbContext appDbContext, IOptions<SmtpOptions> options)
+    public EmailSenderService(IClock clock, AppDbContext appDbContext, IOptions<EnvironmentOptions> envOptions, IOptions<SmtpOptions> options)
     {
         _dbContext = appDbContext;
         _smtpOptions = options.Value;
+        _envOptions = envOptions.Value;
+        _clock = clock;
     }
+
+    public async Task AddEmail(string subject, string body, string recipientEmail, string? recipientName = null, string? fromEmail = null, string? fromName = null)
+    {
+        var message = new EmailMessage
+        {
+            Subject = subject,
+            Body = body,
+            RecipientEmail = recipientEmail,
+            RecipientName = recipientName,
+            FromEmail = fromEmail ?? _envOptions.SenderEmail,
+            FromName = fromName ?? _envOptions.SenderName,
+            Sent = false,
+            CreatedAt = _clock.GetCurrentInstant(),
+        };
+
+        _dbContext.Add(message);
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task SendEmailsAsync()
     {
         var unsentMails = await _dbContext.Emails.Where(x => !x.Sent).ToListAsync();

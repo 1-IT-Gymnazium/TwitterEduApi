@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using TwitterEdu.Api.Models.Auth;
 using TwitterEdu.Api.Options;
+using TwitterEdu.Api.Services;
 using TwitterEdu.Api.Utils;
 using TwitterEdu.Data.Entities.Identity;
 using TwitterEdu.Data.Interfaces;
@@ -26,17 +27,20 @@ public class AuthController : ControllerBase
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly JwtSettings _jwtSettings;
+    private readonly EmailSenderService _emailSenderService;
 
     public AuthController(
         IClock clock,
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
+        EmailSenderService emailSenderService,
         IOptions<JwtSettings> options)
     {
         _clock = clock;
         _signInManager = signInManager;
         _userManager = userManager;
         _jwtSettings = options.Value;
+        _emailSenderService = emailSenderService;
     }
 
     // We will also add verion of endpoint into post controller
@@ -74,6 +78,8 @@ public class AuthController : ControllerBase
 
         var token = string.Empty;
         token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+
+        await _emailSenderService.AddEmail("Registrace", $"{token}", string.Empty, string.Empty, model.Email);
 
         return Ok(token);
     }

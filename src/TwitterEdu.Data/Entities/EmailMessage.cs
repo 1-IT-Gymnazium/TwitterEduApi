@@ -12,11 +12,11 @@ public class EmailMessage
 {
     public Guid Id { get; set; }
     public required string RecipientEmail { get; set; }
-    public required string RecipientName { get; set; }
+    public string? RecipientName { get; set; }
     public required string Subject { get; set; }
     public required string Body { get; set; }
     public bool Sent { get; set; }
-    public Instant CreatedBy { get; set; }
+    public Instant CreatedAt { get; set; }
     public required string FromEmail { get; set; }
     public required string FromName { get; set; }
 }

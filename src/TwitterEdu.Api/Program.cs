@@ -69,6 +69,7 @@ public class Program
         });
 
         builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpSettings"));
+        builder.Services.Configure<EnvironmentOptions>(builder.Configuration.GetSection("EnvironmentSettings"));
 
         // Add services to the container.
         builder.Services.AddSingleton<IClock>(SystemClock.Instance);
