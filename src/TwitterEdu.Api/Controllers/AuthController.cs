@@ -229,7 +229,25 @@ public class AuthController : ControllerBase
     [HttpPost("api/v1/Auth/Logout")]
     public async Task<ActionResult> Logout()
     {
-        await HttpContext.SignOutAsync();
+        if (!Request.Cookies.TryGetValue("RefreshToken", out var incomingToken))
+        {
+            return NoContent();
+        }
+
+        var hashedToken = Hash(incomingToken);
+
+        var storedToken = await _dbContext.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == hashedToken);
+
+        if (storedToken == null || storedToken.ExpiresAt < _clock.GetCurrentInstant() || storedToken.RevokedAt != null)
+        {
+            return NoContent();
+        }
+
+        storedToken.ExpiresAt = _clock.GetCurrentInstant();
+        await _dbContext.SaveChangesAsync();
+
+        Response.Cookies.Delete("RefreshToken");
         return NoContent();
     }
 
