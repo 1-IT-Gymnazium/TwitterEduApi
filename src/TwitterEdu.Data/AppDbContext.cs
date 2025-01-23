@@ -19,6 +19,8 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 
     public DbSet<EmailMessage> Emails { get; set; }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public AppDbContext(DbContextOptions options) : base(options)
     {
     }
