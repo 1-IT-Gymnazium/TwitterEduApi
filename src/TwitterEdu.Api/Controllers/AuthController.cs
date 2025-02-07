@@ -84,7 +84,7 @@ public class AuthController : ControllerBase
         var token = string.Empty;
         token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
-        await _emailSenderService.AddEmail("Registrace", $"{token}", string.Empty, string.Empty, model.Email);
+        await _emailSenderService.AddEmail("Registrace", $"http://localhost:4200/validate-token?token={token}&email={newUser.Email}", string.Empty, string.Empty, model.Email);
 
         return Ok(token);
     }
@@ -309,5 +309,14 @@ public class AuthController : ControllerBase
         var hash = SHA256.HashData(bytes);
         return Convert.ToBase64String(hash);
 
+    }
+
+    [HttpGet("api/v1/Auth/TestMail")]
+    public async Task<ActionResult> Test(
+    [FromServices] EmailSenderService service
+    )
+    {
+        await _emailSenderService.AddEmail("Suuuubject", "Aaaaaaaaaaa", "test@test.cz");
+        return NoContent();
     }
 }

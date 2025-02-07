@@ -65,6 +65,7 @@ public class EmailSenderService
                 await smtp.SendAsync((MimeMessage)mail);
 
                 unsent.Sent = true;
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
