@@ -52,7 +52,7 @@ public class EmailSenderService
             {
                 Subject = unsent.Subject,
                 Body = unsent.Body,
-                IsBodyHtml = false,
+                IsBodyHtml = true,
                 From = new MailAddress(unsent.FromEmail, unsent.FromName),
             };
             mail.To.Add(new MailAddress(unsent.RecipientEmail, unsent.RecipientName));

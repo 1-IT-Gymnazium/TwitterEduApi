@@ -30,6 +30,7 @@ public class AuthController : ControllerBase
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly JwtSettings _jwtSettings;
+    private readonly EnvironmentOptions _environmentSettings;
     private readonly EmailSenderService _emailSenderService;
 
     public AuthController(
@@ -38,7 +39,8 @@ public class AuthController : ControllerBase
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         EmailSenderService emailSenderService,
-        IOptions<JwtSettings> options)
+        IOptions<JwtSettings> options,
+        EnvironmentOptions environmentSettings)
     {
         _clock = clock;
         _dbContext = dbContext;
@@ -46,6 +48,7 @@ public class AuthController : ControllerBase
         _userManager = userManager;
         _jwtSettings = options.Value;
         _emailSenderService = emailSenderService;
+        _environmentSettings = environmentSettings;
     }
 
     // We will also add verion of endpoint into post controller
@@ -84,7 +87,9 @@ public class AuthController : ControllerBase
         var token = string.Empty;
         token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
-        await _emailSenderService.AddEmail("Registrace", $"http://localhost:4200/validate-token?token={token}&email={newUser.Email}", string.Empty, string.Empty, model.Email);
+        var url = Path.Combine(_environmentSettings.FrontendHostUrl, _environmentSettings.FrontendConfirmUrl);
+        var escapedToken = Uri.EscapeDataString(token);
+        await _emailSenderService.AddEmail("Registrace", $"<a href=\"{url}?token={escapedToken}&email={newUser.Email}\">Not a scam! Click me</a>", string.Empty, string.Empty, model.Email);
 
         return Ok(token);
     }
